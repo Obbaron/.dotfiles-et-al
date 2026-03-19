@@ -11,6 +11,10 @@ log()    { echo -e "${GREEN}[+]${NC} $1"; }
 warn()   { echo -e "${YELLOW}[!]${NC} $1"; }
 error()  { echo -e "${RED}[✗]${NC} $1"; exit 1; }
 
+if ! sudo -v &>/dev/null; then
+    error "This script requires sudo privileges."
+fi
+
 log "Configuring pacman..."
 sudo sed -i 's/^#ParallelDownloads.*/ParallelDownloads = 10/' /etc/pacman.conf
 sudo sed -i 's/^#Color/Color/' /etc/pacman.conf
@@ -124,6 +128,16 @@ log "Creating symlinks..."
 ln -sf ~/src/dotfiles-et-al/.bashrc ~/.bashrc
 ln -sf ~/src/dotfiles-et-al/nvim ~/.config/nvim
 ln -sf ~/src/dotfiles-et-al/starship.toml ~/.config/starship.toml
+ln -sf ~/src/dotfiles-et-al/post ~/.local/bin/post
+
+log "Creating script wrappers..."
+echo '#!/bin/bash' > ~/.local/bin/post-arch
+echo 'bash ~/.local/bin/post/post-arch.bash "$@"' >> ~/.local/bin/post-arch
+chmod +x ~/.local/bin/post-arch
+
+echo '#!/bin/bash' > ~/.local/bin/post-kde
+echo 'bash ~/.local/bin/post/post-KDE.bash "$@"' >> ~/.local/bin/post-kde
+chmod +x ~/.local/bin/post-kde
 
 log "Enabling UFW firewall..."
 sudo ufw default deny incoming
@@ -133,4 +147,8 @@ sudo systemctl enable ufw
 
 log "Done! Reboot to apply all changes."
 
-source "$(dirname "$0")/post-KDE.bash"
+if [ "$XDG_CURRENT_DESKTOP" = "KDE" ] || [ "$DESKTOP_SESSION" = "plasma" ]; then
+    source "$(dirname "$0")/post-KDE.bash"
+else
+    warn "KDE not detected, skipping KDE setup."
+fi
