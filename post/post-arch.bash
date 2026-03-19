@@ -145,7 +145,7 @@ chmod +x ~/.local/bin/post-kde
 log "Enabling UFW firewall..."
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
-sudo ufw enable --force
+sudo ufw enable
 sudo systemctl enable ufw
 
 log "Done! Reboot to apply all changes."
