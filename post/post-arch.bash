@@ -15,6 +15,9 @@ if ! sudo -v &>/dev/null; then
     error "This script requires sudo privileges."
 fi
 
+sudo -v
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
 log "Configuring pacman..."
 sudo sed -i 's/^#ParallelDownloads.*/ParallelDownloads = 10/' /etc/pacman.conf
 sudo sed -i 's/^#Color/Color/' /etc/pacman.conf
