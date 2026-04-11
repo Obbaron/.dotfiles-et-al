@@ -41,36 +41,51 @@ packages:
       profiles: [desktop, server, minimal]
 
 directories:
-  - path: ~/.bashrc.d
-    profiles: [desktop, server, minimal]
-  - path: ~/.local/bin
-    profiles: [desktop, server, minimal]
-  - path: ~/.config
-    profiles: [desktop, server, minimal]
-  - path: ~/.ssh
-    profiles: [desktop, server, minimal]
-  - path: ~/.local/share
-    profiles: [desktop, server]
-  - path: ~/.local/state
-    profiles: [desktop, server]
-  - path: ~/.cache
-    profiles: [desktop]
-  - path: ~/Desktop
-    profiles: [desktop]
-  - path: ~/Documents
-    profiles: [desktop]
-  - path: ~/Downloads
-    profiles: [desktop]
-  - path: ~/Templates
-    profiles: [desktop]
-  - path: ~/Public
-    profiles: [desktop]
-  - path: ~/Audio
-    profiles: [desktop]
-  - path: ~/Pictures
-    profiles: [desktop]
-  - path: ~/Videos
-    profiles: [desktop]
+  base:
+    - path: ~/.bashrc.d
+      profiles: [desktop, server, minimal]
+    - path: ~/.local/bin
+      profiles: [desktop, server, minimal]
+    - path: ~/.config
+      profiles: [desktop, server, minimal]
+    - path: ~/.ssh
+      profiles: [desktop, server, minimal]
+
+  xdg_base:
+    - path: ~/.local/share
+      profiles: [desktop, server]
+    - path: ~/.local/state
+      profiles: [desktop, server]
+    - path: ~/.cache
+      profiles: [desktop server, minimal]
+
+  xdg_user:
+    - path: ~/Desktop
+      profiles: [desktop]
+    - path: ~/Documents
+      profiles: [desktop]
+    - path: ~/Downloads
+      profiles: [desktop]
+    - path: ~/Templates
+      profiles: [desktop]
+    - path: ~/Public
+      profiles: [desktop]
+    - path: ~/Audio
+      profiles: [desktop]
+    - path: ~/Pictures
+      profiles: [desktop]
+    - path: ~/Videos
+      profiles: [desktop]
+
+  system:
+    - path: ~/.local/share/fonts
+      profiles: [desktop]
+    - path: ~/.local/share/applications
+      profiles: [desktop]
+    - path: ~/.local/share/icons
+      profiles: [desktop]
+    - path: ~/.config/systemd/user
+      profiles: [desktop, server]
 
 permissions:
   - path: ~/.ssh
