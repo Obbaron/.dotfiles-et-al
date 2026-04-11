@@ -7,11 +7,12 @@ ALL_PROFILES=("minimal" "server" "desktop")
 
 SCRIPT_DIR="$(dirname "$0")"
 YAML="$SCRIPT_DIR/bstrap.yaml"
-BSTRAP_REPO="https://github.com/Obbaron/.bstrap.git"
-BRANCH="main"
 
+BSTRAP_REPO="https://github.com/Obbaron/.dotfiles-et-al.git"
+BRANCH="main"
+SUB_DIR="bstrap"
 RAW_URL="${BSTRAP_REPO/github.com/raw.githubusercontent.com}"
-RAW_URL="${RAW_URL%.git}/$BRANCH"
+RAW_URL="${RAW_URL%.git}/$BRANCH/$SUB_DIR"
 
 
 ## PARSE ARG
@@ -41,7 +42,6 @@ if [[ "$PROFILE" =~ ^[0-9]+$ ]]; then
     fi
     PROFILE="${ALL_PROFILES[$idx]}"
 else
-    # Input is name: find it in array
     valid=false
     for p in "${ALL_PROFILES[@]}"; do
         if [ "$p" = "$PROFILE" ]; then
@@ -57,24 +57,15 @@ fi
 
 
 ## INITIALIZE
-if command -v curl &>/dev/null; then
-    DOWNLOAD="curl -fsL"
-    OUTPUT="-o"
-elif command -v wget &>/dev/null; then
-    DOWNLOAD="wget -q"
-    OUTPUT="-O"
-else
-    echo "Error: Cannot bootstrap without curl or wget" >&2
-    exit 1
-fi
-
 if [ ! -f "$SCRIPT_DIR/lib/helpers.sh" ]; then
     mkdir -p "$SCRIPT_DIR/lib"
-    $DOWNLOAD "$RAW_URL/lib/helpers.sh" $OUTPUT "$SCRIPT_DIR/lib/helpers.sh" || {
+    curl -fsL "$RAW_URL/lib/helpers.sh" -o "$SCRIPT_DIR/lib/helpers.sh" || \
+    wget -q "$RAW_URL/lib/helpers.sh" -O "$SCRIPT_DIR/lib/helpers.sh" || {
         echo "Error: Failed to download helpers.sh" >&2
         exit 1
     }
 fi
+
 source "$SCRIPT_DIR/lib/helpers.sh"
 
 assert_not_root
@@ -121,6 +112,8 @@ if ! python3 -c "import yaml" &>/dev/null; then
     esac
 fi
 
+
+## PARSE YAML
 PARSED=$(YAML="$YAML" PROFILE="$PROFILE" DISTRO="$(detect_distro)" python3 - <<'EOF'
 import yaml, os
 
@@ -163,27 +156,18 @@ EOF
 eval "$PARSED"
 
 
-## PIPELINE
+## APPLY
 # 01 packages
-if [ ! -f "$SCRIPT_DIR/lib/01_packages.sh" ]; then
-    $DOWNLOAD "$RAW_URL/lib/01_packages.sh" $OUTPUT "$SCRIPT_DIR/lib/01_packages.sh" || fail "Failed to download 01_packages.sh"
-fi
 if [ "${#PACKAGES[@]}" -gt 0 ]; then
     source "$SCRIPT_DIR/lib/01_packages.sh" "${PACKAGES[@]}"
 fi
 
 # 02 directories
-if [ ! -f "$SCRIPT_DIR/lib/02_directories.sh" ]; then
-    $DOWNLOAD "$RAW_URL/lib/02_directories.sh" $OUTPUT "$SCRIPT_DIR/lib/02_directories.sh" || fail "Failed to download 02_directories.sh"
-fi
 if [ "${#DIRECTORIES[@]}" -gt 0 ]; then
     source "$SCRIPT_DIR/lib/02_directories.sh" "${DIRECTORIES[@]}"
 fi
 
 # 03 permissions
-if [ ! -f "$SCRIPT_DIR/lib/03_permissions.sh" ]; then
-    $DOWNLOAD "$RAW_URL/lib/03_permissions.sh" $OUTPUT "$SCRIPT_DIR/lib/03_permissions.sh" || fail "Failed to download 03_permissions.sh"
-fi
 if [ "${#PERMISSIONS_PATH[@]}" -gt 0 ]; then
     PERM_ARGS=()
     for i in "${!PERMISSIONS_PATH[@]}"; do
@@ -193,11 +177,15 @@ if [ "${#PERMISSIONS_PATH[@]}" -gt 0 ]; then
 fi
 
 # 04 services
-if [ ! -f "$SCRIPT_DIR/lib/04_services.sh" ]; then
-    $DOWNLOAD "$RAW_URL/lib/04_services.sh" $OUTPUT "$SCRIPT_DIR/lib/04_services.sh" || fail "Failed to download 04_services.sh"
-fi
 if [ "${#SERVICES[@]}" -gt 0 ]; then
     source "$SCRIPT_DIR/lib/04_services.sh" "${SERVICES[@]}"
 fi
 
 # 05 dotfiles
+if [ "${#DOTFILES_SRC[@]}" -gt 0 ]; then
+    DOTFILE_ARGS=()
+    for i in "${!DOTFILES_SRC[@]}"; do
+        DOTFILE_ARGS+=("${DOTFILES_SRC[$i]}:${DOTFILES_DST[$i]}")
+    done
+    source "$SCRIPT_DIR/lib/05_dotfiles.sh" "${DOTFILE_ARGS[@]}"
+fi
