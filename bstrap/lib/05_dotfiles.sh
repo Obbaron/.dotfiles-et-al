@@ -7,11 +7,17 @@ fi
 
 source "${SCRIPT_DIR}/lib/helpers.sh"
 
-SKIP_MISSING=false
+DOTFILES_SRC="${1:-}"
+if [ -z "$DOTFILES_SRC" ]; then
+    fail "No source directory or URL provided"
+fi
+shift
+
+USE_CLONE=false
 
 while [[ "${1:-}" == -* ]]; do
     case "$1" in
-        -s|--skip) SKIP_MISSING=true; shift ;;
+        -c|--clone) USE_CLONE=true; shift ;;
         *) fail "Unknown flag: $1" ;;
     esac
 done
@@ -20,4 +26,15 @@ if [ -z "${1:-}" ]; then
     fail "No dotfiles provided"
 fi
 
-# ...
+if [[ "$DOTFILES_STC" =~ ^https?:// ]]; then
+    if [ "$USE_CLONE" = true ]; then
+        info "Cloning dotfiles from $DOTFILES_SRC..."
+        # git clone
+    else
+        info "Downloading dotfiles from $DOTFILES_SRC..."
+        # download individual files
+    fi
+else
+    info "Dotfiles source is a local path: $DOTFILES_SRC"
+    # handle local path
+fi
