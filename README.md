@@ -38,28 +38,6 @@ Or pass a profile directly:
 ./bstrap.sh minimal
 ```
 
-### Profiles
-
-| Profile | Description |
-|---|---|
-| `desktop` | Full desktop environment setup |
-| `server` | Headless server setup |
-| `minimal` | Minimal base setup |
-
-### Requirements
-
-- A regular user with `sudo` access (do not run as root)
-- `curl` or `wget`
-- Internet connection
-
-### What it does
-
-- Installs packages defined in `bstrap.yaml` for your chosen profile
-- Creates directories
-- Sets permissions
-- Enables services
-- Deploys dotfiles
-
 ### Configuration
 
 All configuration is driven by `bstrap.yaml`. If not present it will be downloaded automatically from this repository.
