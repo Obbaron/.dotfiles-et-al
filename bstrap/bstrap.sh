@@ -10,7 +10,7 @@ YAML="$SCRIPT_DIR/bstrap.yaml"
 
 BSTRAP_REPO="https://github.com/Obbaron/.dotfiles-et-al.git"
 BRANCH="main"
-SUB_DIR="bstrap"
+SUB_DIR="bstrap" # set empty string for no subdir
 RAW_URL="${BSTRAP_REPO/github.com/raw.githubusercontent.com}"
 RAW_URL="${RAW_URL%.git}/$BRANCH/$SUB_DIR"
 
