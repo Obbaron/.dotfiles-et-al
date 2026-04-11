@@ -1,25 +1,29 @@
 # .dotfiles-et-al
 
-Linux post-install setup with bootstrap script.
+A personal dotfiles and system bootstrap repository for Arch Linux and Fedora Asahi Remix.
 
-## Quick Start
+## Bootstrap
+
+The `bstrap` directory contains a post-install bootstrap script to set up a new system from scratch.
+
+### Quick Start
 
 Create and enter a directory for the bootstrap files:
 
 ```bash
-mkdir .bstrap && cd .bstrap
+mkdir bstrap && cd bstrap
 ```
 
 Download the script using either `curl` or `wget`:
 
 **curl:**
 ```bash
-curl -fsL https://raw.githubusercontent.com/Obbaron/.bstrap/main/bstrap.sh -o bstrap.sh && chmod +x bstrap.sh
+curl -fsL https://raw.githubusercontent.com/Obbaron/.dotfiles-et-al/main/bstrap/bstrap.sh -o bstrap.sh && chmod +x bstrap.sh
 ```
 
 **wget:**
 ```bash
-wget -qO bstrap.sh https://raw.githubusercontent.com/Obbaron/.bstrap/main/bstrap.sh && chmod +x bstrap.sh
+wget -qO bstrap.sh https://raw.githubusercontent.com/Obbaron/.dotfiles-et-al/main/bstrap/bstrap.sh && chmod +x bstrap.sh
 ```
 
 Then run it:
@@ -34,11 +38,33 @@ Or pass a profile directly:
 ./bstrap.sh minimal
 ```
 
-## Configuration
+### Profiles
+
+| Profile | Description |
+|---|---|
+| `desktop` | Full desktop environment setup |
+| `server` | Headless server setup |
+| `minimal` | Minimal base setup |
+
+### Requirements
+
+- A regular user with `sudo` access (do not run as root)
+- `curl` or `wget`
+- Internet connection
+
+### What it does
+
+- Installs packages defined in `bstrap.yaml` for your chosen profile
+- Creates directories
+- Sets permissions
+- Enables services
+- Deploys dotfiles
+
+### Configuration
 
 All configuration is driven by `bstrap.yaml`. If not present it will be downloaded automatically from this repository.
 
-### Packages
+#### Packages
 
 Packages are grouped by category and filtered by profile:
 
@@ -49,18 +75,18 @@ packages:
       profiles: [desktop, server]
 ```
 
-If a package has a different name across package managers, use the optional `manager` block:
+If a package has a different name across distros, use the optional `distro` block:
 
 ```yaml
     - name: python-yaml
-      manager:
-        pacman: python-yaml
-        dnf: python3-pyyaml
-        apt: python3-yaml
+      distro:
+        arch: python-yaml
+        fedora: python3-pyyaml
+        ubuntu: python3-yaml
       profiles: [desktop, server, minimal]
 ```
 
-### Directories
+#### Directories
 
 Directories to create, filtered by profile:
 
@@ -70,9 +96,9 @@ directories:
     profiles: [desktop, server, minimal]
 ```
 
-### Permissions
+#### Permissions
 
-Set permissions on paths:
+Set permissions on paths, filtered by profile:
 
 ```yaml
 permissions:
@@ -81,19 +107,19 @@ permissions:
     profiles: [desktop, server, minimal]
 ```
 
-### Services
+#### Services
 
-Services to enable:
+Services to enable, filtered by profile:
 
 ```yaml
 services:
-  - name: tailscaled
+  - name: ufw
     profiles: [desktop, server]
 ```
 
-### Dotfiles
+#### Dotfiles
 
-Dotfiles to symlink, with source and destination paths:
+Dotfiles to deploy, with source and destination paths, filtered by profile:
 
 ```yaml
 dotfiles:
@@ -102,7 +128,7 @@ dotfiles:
     profiles: [desktop, server, minimal]
 ```
 
-### Profiles
+#### Profiles
 
 The three built-in profiles are `minimal`, `server`, and `desktop`. Each entry in the YAML can belong to one or more profiles. To add a package to multiple profiles simply list them:
 
