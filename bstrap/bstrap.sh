@@ -91,39 +91,6 @@ if [ ! -f "$YAML" ]; then
 fi
 
 
-## PYYAML
-if ! python3 -c "import yaml" &>/dev/null; then
-    if ! command_exists python3; then
-        info "python3 not found, installing..."
-        install_pkg python3
-    fi
-    info "python3-yaml not found, installing..."
-    case "$(detect_distro)" in
-        arch|manjaro|endeavouros|cachyos)
-            install_pkg python-yaml
-            ;;
-        fedora|fedora-asahi-remix|rhel|centos)
-            install_pkg python3-pyyaml
-            ;;
-        ubuntu|debian|linuxmint)
-            install_pkg python3-yaml
-            ;;
-        opensuse-leap|opensuse-tumbleweed)
-            install_pkg python3-PyYAML
-            ;;
-        gentoo)
-            install_pkg dev-python/pyyaml
-            ;;
-        void)
-            install_pkg python3-PyYAML
-            ;;
-        *)
-            fail "Don't know how to install PyYAML on $(detect_distro)"
-            ;;
-    esac
-fi
-
-
 ## PARSE YAML
 PARSED=$(YAML="$YAML" PROFILE="$PROFILE" DISTRO="$(detect_distro)" python3 - <<'EOF'
 import yaml, os
@@ -146,7 +113,12 @@ for category, pkgs in config.get("packages", {}).items():
             name = distro_map.get(distro, pkg["name"])
             packages.append(name)
 
-directories = [expand(d["path"]) for d in config.get("directories", []) if profile in d.get("profiles", [])]
+directories = []
+for category, dirs in config.get("directories", {}).items():
+    for d in dirs:
+        if profile in d.get("profiles", []):
+            directories.append(expand(d["path"]))
+
 permissions_raw = [p for p in config.get("permissions", []) if profile in p.get("profiles", [])]
 services = [s["name"] for s in config.get("services", []) if profile in s.get("profiles", [])]
 dotfiles_raw = [d for d in config.get("dotfiles", []) if profile in d.get("profiles", [])]
