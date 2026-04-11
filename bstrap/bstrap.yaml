@@ -1,0 +1,80 @@
+packages:
+  terminal:
+    - name: fastfetch
+      profiles: [desktop, server]
+    - name: btop
+      profiles: [desktop, server]
+    - name: eza
+      profiles: [desktop, server]
+    - name: vim
+      profiles: [desktop, server, minimal]
+    - name: neovim
+      profiles: [desktop, server]
+
+  networking:
+    - name: wget
+      profiles: [desktop, server]
+    - name: curl
+      profiles: [desktop, server]
+    - name: ufw
+      profiles: [desktop, server]
+
+  utilities:
+    - name: p7zip
+      profiles: [desktop]
+    - name: unrar
+      profiles: [desktop]
+    - name: git
+      profiles: [desktop, server, minimal]
+    - name: python-yaml
+      distro:
+        arch: python-yaml
+        fedora: python3-pyyaml
+        fedora-asahi-remix: python3-pyyaml
+        ubuntu: python3-yaml
+        debian: python3-yaml
+        linuxmint: python3-yaml
+        opensuse-leap: python3-PyYAML
+        opensuse-tumbleweed: python3-PyYAML
+        gentoo: dev-python/pyyaml
+        void: python3-PyYAML
+      profiles: [desktop, server, minimal]
+
+directories:
+  - path: ~/.bashrc.d
+    profiles: [desktop, server, minimal]
+  - path: ~/.local/bin
+    profiles: [desktop, server, minimal]
+  - path: ~/.config
+    profiles: [desktop, server, minimal]
+  - path: ~/.ssh
+    profiles: [desktop, server, minimal]
+
+permissions:
+  - path: ~/.ssh
+    mode: "700"
+    profiles: [desktop, server, minimal]
+  - path: ~/.ssh/authorized_keys
+    mode: "600"
+    profiles: [desktop, server, minimal]
+
+services:
+  - name: ufw
+    profiles: [desktop, server]
+
+dotfiles:
+  - src: dotfiles/.bashrc
+    dst: ~/.bashrc
+    profiles: [desktop, server, minimal]
+  - src: dotfiles/.profile
+    dst: ~/.profile
+    profiles: [desktop, server, minimal]
+  - src: dotfiles/.vimrc
+    dst: ~/.vimrc
+    profiles: [desktop, server, minimal]
+  - src: dotfiles/.bashrc.d/aliases.sh
+    dst: ~/.bashrc.d/aliases.sh
+    profiles: [desktop, server, minimal]
+  - src: dotfiles/.bashrc.d/functions.sh
+    dst: ~/.bashrc.d/functions.sh
+    profiles: [desktop, server, minimal]
