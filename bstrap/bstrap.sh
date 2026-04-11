@@ -12,7 +12,7 @@ BSTRAP_REPO="https://github.com/Obbaron/.dotfiles-et-al.git"
 BRANCH="main"
 SUB_DIR="bstrap" # set empty string for no subdir
 RAW_URL="${BSTRAP_REPO/github.com/raw.githubusercontent.com}"
-RAW_URL="${RAW_URL%.git}/$BRANCH/$SUB_DIR"
+RAW_URL="${RAW_URL%.git}/$BRANCH${SUB_DIR:+/$SUB_DIR}"
 
 
 ## PARSE ARG
@@ -57,6 +57,17 @@ fi
 
 
 ## INITIALIZE
+if command -v curl &>/dev/null; then
+    DOWNLOAD="curl -fsL"
+    OUTPUT="-o"
+elif command -v wget &>/dev/null; then
+    DOWNLOAD="wget -q"
+    OUTPUT="-O"
+else
+    echo "Error: Cannot bootstrap without curl or wget" >&2
+    exit 1
+fi
+
 if [ ! -f "$SCRIPT_DIR/lib/helpers.sh" ]; then
     mkdir -p "$SCRIPT_DIR/lib"
     curl -fsL "$RAW_URL/lib/helpers.sh" -o "$SCRIPT_DIR/lib/helpers.sh" || \
