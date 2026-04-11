@@ -1,6 +1,6 @@
 # .dotfiles-et-al
 
-A personal dotfiles and system bootstrap repository for Arch Linux and Fedora Asahi Remix.
+Personal dotfiles and Linux system bootstrap repository.
 
 ## Bootstrap
 
