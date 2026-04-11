@@ -49,6 +49,28 @@ directories:
     profiles: [desktop, server, minimal]
   - path: ~/.ssh
     profiles: [desktop, server, minimal]
+  - path: ~/.local/share
+    profiles: [desktop, server]
+  - path: ~/.local/state
+    profiles: [desktop, server]
+  - path: ~/.cache
+    profiles: [desktop]
+  - path: ~/Desktop
+    profiles: [desktop]
+  - path: ~/Documents
+    profiles: [desktop]
+  - path: ~/Downloads
+    profiles: [desktop]
+  - path: ~/Templates
+    profiles: [desktop]
+  - path: ~/Public
+    profiles: [desktop]
+  - path: ~/Audio
+    profiles: [desktop]
+  - path: ~/Pictures
+    profiles: [desktop]
+  - path: ~/Videos
+    profiles: [desktop]
 
 permissions:
   - path: ~/.ssh
