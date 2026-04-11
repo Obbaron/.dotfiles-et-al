@@ -100,18 +100,18 @@ services:
     profiles: [desktop, server]
 
 dotfiles:
-  - src: dotfiles/.bashrc
+  - src: bash/.bashrc
     dst: ~/.bashrc
     profiles: [desktop, server, minimal]
-  - src: dotfiles/.profile
+  - src: bash/.profile
     dst: ~/.profile
     profiles: [desktop, server, minimal]
-  - src: dotfiles/.vimrc
-    dst: ~/.vimrc
-    profiles: [desktop, server, minimal]
-  - src: dotfiles/.bashrc.d/aliases.sh
+  - src: bash/.bashrc.d/aliases.sh
     dst: ~/.bashrc.d/aliases.sh
     profiles: [desktop, server, minimal]
-  - src: dotfiles/.bashrc.d/functions.sh
+  - src: bash/.bashrc.d/functions.sh
     dst: ~/.bashrc.d/functions.sh
+    profiles: [desktop, server, minimal]
+  - src: vim/.vimrc
+    dst: ~/.vimrc
     profiles: [desktop, server, minimal]
