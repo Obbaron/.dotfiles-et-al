@@ -11,10 +11,10 @@ _GREEN='\033[0;32m'
 _YELLOW='\033[0;33m'
 _CYAN='\033[0;36m'
 
-info()    { echo -e "${_CYAN}${_BOLD}[INFO]${_RESET}  $*"; }
-ok()      { echo -e "${_GREEN}${_BOLD}[ OK ]${_RESET}  $*"; }
-warn()    { echo -e "${_YELLOW}${_BOLD}[WARN]${_RESET}  $*"; }
-error()   { echo -e "${_RED}${_BOLD}[ERR!]${_RESET}  $*" >&2; }
+info()  { printf "%b\n" "${_CYAN}${_BOLD}[INFO]${_RESET}  $*"; }
+ok()    { printf "%b\n" "${_GREEN}${_BOLD}[ OK ]${_RESET}  $*"; }
+warn()  { printf "%b\n" "${_YELLOW}${_BOLD}[WARN]${_RESET}  $*"; }
+error() { printf "%b\n" "${_RED}${_BOLD}[ERR!]${_RESET}  $*" >&2; }
 fail()    { error "$@"; exit 1; }
 log_section() { echo ""; }
 
