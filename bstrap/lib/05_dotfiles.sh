@@ -14,10 +14,12 @@ fi
 shift
 
 USE_CLONE=false
+USE_SKIP=false
 
 while [[ "${1:-}" == -* ]]; do
     case "$1" in
         -c|--clone) USE_CLONE=true; shift ;;
+        -s|--skip) USE_SKIP=true; shift;;
         *) fail "Unknown flag: $1" ;;
     esac
 done
