@@ -26,7 +26,7 @@ if [ -z "${1:-}" ]; then
     fail "No dotfiles provided"
 fi
 
-if [[ "$DOTFILES_STC" =~ ^https?:// ]]; then
+if [[ "$DOTFILES_SRC" =~ ^https?:// ]]; then
     if [ "$USE_CLONE" = true ]; then
         info "Cloning dotfiles from $DOTFILES_SRC..."
         # git clone
