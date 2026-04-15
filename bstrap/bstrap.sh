@@ -82,7 +82,16 @@ source "$SCRIPT_DIR/lib/helpers.sh"
 
 assert_not_root || { echo "Error: Do not run bootstrap as root - use a regular user with sudo access" >&2; exit 1; }
 
-build_lib "$SCRIPT_DIR/lib" "$RAW_URL/lib"
+if ! build_lib "$SCRIPT_DIR/lib" "$RAW_URL/lib"; then
+    rc=$?
+    case "$rc" in
+        1) error "build_lib failed (invalid args or no downloader found)" ;;
+        2) error "build_lib failed (curl error)" ;;
+        3) error "build_lib failed (wget error)" ;;
+        *) error "build_lib failed (unknown error: $rc)" ;;
+    esac
+    exit "$rc"
+fi
 
 if [ ! -f "$YAML" ]; then
     $DOWNLOAD "$RAW_URL/bstrap.yaml" $OUTPUT "$YAML" || {
