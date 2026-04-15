@@ -20,7 +20,7 @@ log_section() { echo ""; }
 
 
 assert_not_root() {
-    [[ "$EUID" -ne 0 ]] || fail "Do not run bootstrap as root - use a regular user with sudo access"
+    [[ "$EUID" -ne 0 ]]
 }
 
 command_exists() {
