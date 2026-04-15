@@ -10,6 +10,10 @@ packages:
       profiles: [desktop, server, minimal]
     - name: neovim
       profiles: [desktop, server]
+    - name: zoxide
+      profiles: [desktop, server, minimal]
+    - name: fzf
+      profiles: [desktop, server, minimal]
 
   networking:
     - name: wget
@@ -85,7 +89,7 @@ directories:
     - path: ~/.local/share/icons
       profiles: [desktop]
     - path: ~/.config/systemd/user
-      profiles: [desktop, server]
+      profiles: [desktop, server, minimal]
 
 permissions:
   - path: ~/.ssh
