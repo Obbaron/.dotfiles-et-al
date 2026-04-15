@@ -1,9 +1,7 @@
 #!/bin/bash
 # lib/01_packages.sh
 
-if [ -n "$(PKG_MANAGER}" ]; then
-    PKG_MANAGER="${PKG_MANAGER,,}" # lowercase
-fi
+PKG_MANAGER="${PKG_MANAGER,,}" # lowercase
 
 if [ -z "${SCRIPT_DIR:-}" ]; then
     SCRIPT_DIR="$(dirname "$0")/.."
