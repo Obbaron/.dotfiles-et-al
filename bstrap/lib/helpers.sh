@@ -85,12 +85,14 @@ install_pkg() {
 }
 
 build_lib() {
-    local dest="${1:-}"
-    local url="${2:-}"
+#   0 = success
+#   1 = failed (invalid args or no downloader)
+#   2 = curl failed
+#   3 = wget failed
+    [ "$#" -eq 2 ] || return 1
 
-    if [ -z "$dest" ] || [ -z "$url" ]; then
-        fail "build_lib requires 2 arguments: <dest> <url>"
-    fi
+    local dest="$1"
+    local url="$2"
 
     local scripts=(
         "helpers.sh"
@@ -100,14 +102,15 @@ build_lib() {
         "04_services.sh"
         "05_dotfiles.sh"
     )
+
     for script in "${scripts[@]}"; do
         if [ ! -f "$dest/$script" ]; then
             if command -v curl &>/dev/null; then
-                curl -fsL "$url/$script" -o "$dest/$script" || fail "Failed to download $script"
+                curl -fsL "$url/$script" -o "$dest/$script" || return 2
             elif command -v wget &>/dev/null; then
-                wget -q "$url/$script" -O "$dest/$script" || fail "Failed to download $script"
+                wget -q "$url/$script" -O "$dest/$script" || return 3
             else
-                fail "Cannot download $script — neither curl nor wget found"
+                return 1
             fi
         fi
     done
