@@ -79,7 +79,7 @@ fi
 
 source "$SCRIPT_DIR/lib/helpers.sh"
 
-assert_not_root
+assert_not_root || { echo "Error: Do not run bootstrap as root - use a regular user with sudo access" >&2; exit 1; }
 
 build_lib "$SCRIPT_DIR/lib" "$RAW_URL/lib"
 
