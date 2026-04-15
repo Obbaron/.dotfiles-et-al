@@ -28,12 +28,10 @@ command_exists() {
 }
 
 detect_distro() {
-    if [ -f /etc/os-release ]; then
-        . /etc/os-release
-        echo "$ID"
-    else
-        fail "Cannot detect distro — /etc/os-release not found"
-    fi
+    [ -f /etc/os-release ] || return 1
+    . /etc/os-release || return 1
+    echo "${ID:-}" | grep -q . || return 1
+    echo "$ID"
 }
 
 #   0 = success
