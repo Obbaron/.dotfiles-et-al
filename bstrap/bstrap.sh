@@ -10,10 +10,11 @@ YAML="$SCRIPT_DIR/bstrap.yaml"
 
 GIT_REPO="https://github.com/Obbaron/.dotfiles-et-al.git"
 BRANCH="main"
-SUB_DIR="bstrap" # set empty string for no subdir
+SUB_DIR="bstrap" # empty string for no subdir
 RAW_URL="${GIT_REPO/github.com/raw.githubusercontent.com}"
 RAW_URL="${RAW_URL%.git}/$BRANCH${SUB_DIR:+/$SUB_DIR}"
 
+PKG_MANAGER="" # override distro detection
 
 ## PARSE ARG
 if [ -n "${1:-}" ]; then
