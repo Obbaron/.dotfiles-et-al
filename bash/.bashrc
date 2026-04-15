@@ -24,3 +24,6 @@ if [ -d ~/.bashrc.d ]; then
     done
 fi
 unset rc
+
+# cd alias
+eval "$(zoxide init bash --cmd cd)"
