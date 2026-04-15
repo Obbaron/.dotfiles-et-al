@@ -34,15 +34,14 @@ detect_distro() {
     echo "$ID"
 }
 
+install_pkg() {
 #   0 = success
 #   1 = failed to detect Linux distribution (/etc/os-release missing or invalid)
 #   2 = unsupported Linux distribution
 #   3 = package manager command failed
-install_pkg() {
     local pkg_manager="${PKG_MANAGER:-}"
     local distro
 
-    # If no override, detect distro
     if [ -z "$pkg_manager" ]; then
         [ -f /etc/os-release ] || return 1
         . /etc/os-release || return 1
