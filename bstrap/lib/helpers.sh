@@ -36,32 +36,55 @@ detect_distro() {
     fi
 }
 
+#   0 = success
+#   1 = failed to detect Linux distribution (/etc/os-release missing or invalid)
+#   2 = unsupported Linux distribution
+#   3 = package manager command failed
 install_pkg() {
+    local pkg_manager="${PKG_MANAGER:-}"
     local distro
-    distro="$(detect_distro)"
-    case "$distro" in
-        arch|manjaro|endeavouros|cachyos)
-            sudo pacman -S --noconfirm "$@" || fail "Failed to install package(s): $*"
+
+    # If no override, detect distro
+    if [ -z "$pkg_manager" ]; then
+        [ -f /etc/os-release ] || return 1
+        . /etc/os-release || return 1
+        [ -n "$ID" ] || return 1
+        distro="$ID"
+
+        case "$distro" in
+            arch|manjaro|endeavouros|cachyos) pkg_manager="pacman" ;;
+            fedora|fedora-asahi-remix|rhel|centos) pkg_manager="dnf" ;;
+            ubuntu|debian|linuxmint) pkg_manager="apt" ;;
+            opensuse-leap|opensuse-tumbleweed) pkg_manager="zypper" ;;
+            gentoo) pkg_manager="emerge" ;;
+            void) pkg_manager="xbps-install" ;;
+            *) return 2 ;;
+        esac
+    fi
+
+    case "$pkg_manager" in
+        pacman)
+            sudo pacman -S --noconfirm "$@"
             ;;
-        fedora|fedora-asahi-remix|rhel|centos)
-            sudo dnf install -y "$@" || fail "Failed to install package(s): $*"
+        dnf)
+            sudo dnf install -y "$@"
             ;;
-        ubuntu|debian|linuxmint)
-            sudo apt install -y "$@" || fail "Failed to install package(s): $*"
+        apt)
+            sudo apt install -y "$@"
             ;;
-        opensuse-leap|opensuse-tumbleweed)
-            sudo zypper install -y "$@" || fail "Failed to install package(s): $*"
+        zypper)
+            sudo zypper install -y "$@"
             ;;
-        gentoo)
-            sudo emerge "$@" || fail "Failed to install package(s): $*"
+        emerge)
+            sudo emerge "$@"
             ;;
-        void)
-            sudo xbps-install -y "$@" || fail "Failed to install package(s): $*"
+        xbps-install)
+            sudo xbps-install -y "$@"
             ;;
         *)
-            fail "Unsupported distro: $distro"
+            return 2
             ;;
-    esac
+    esac || return 3
 }
 
 build_lib() {
