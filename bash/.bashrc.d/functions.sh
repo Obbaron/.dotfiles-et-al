@@ -127,11 +127,15 @@ f () {
   }
 
   local dir
+
   dir="$(find . -type d | fzf)"
   local status=$?
 
-  if [ $status -ne 0 ]; then
+  if [ $status -eq 130 ]; then
     echo "Cancelled" >&2
+    return 130
+  elif [ $status -ne 0 ]; then
+    echo "Error: fzf failed" >&2
     return $status
   fi
 
