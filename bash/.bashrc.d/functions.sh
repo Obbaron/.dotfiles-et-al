@@ -143,11 +143,6 @@ f () {
   cd -- "${dir}" || return
 }
 
-  local dir
-  dir="$(find . -type d | fzf)" || return
-  [ -n "${dir}" ] && cd -- "${dir}"
-}
-
 up() {
   local n="${1:-1}"
 
