@@ -127,6 +127,23 @@ f () {
   }
 
   local dir
+  dir="$(find . -type d | fzf)"
+  local status=$?
+
+  if [ $status -ne 0 ]; then
+    echo "Cancelled" >&2
+    return $status
+  fi
+
+  [ -z "${dir}" ] && {
+    echo "No directory selected" >&2
+    return 1
+  }
+
+  cd -- "${dir}" || return
+}
+
+  local dir
   dir="$(find . -type d | fzf)" || return
   [ -n "${dir}" ] && cd -- "${dir}"
 }
