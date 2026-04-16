@@ -34,6 +34,11 @@ detect_distro() {
     echo "$ID"
 }
 
+join_array() {
+    local IFS=" "
+    echo "$*"
+}
+
 install_pkg() {
 #   0 = success
 #   1 = failed to detect Linux distribution (/etc/os-release missing or invalid)
