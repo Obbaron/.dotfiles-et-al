@@ -195,6 +195,7 @@ _lock() {
         echo "# bstrap lock file"
         echo "VERSION=\"1.0.0\""
         echo "PROFILE=\"$PROFILE\""
+        echo "PKG_MANAGER=\"${PKG_MANAGER:-}\""
         echo "TIMESTAMP=\"$(date -Iseconds)\""
 
         echo "PACKAGES=\"$(join_array "${PACKAGES[@]:-}")\""
