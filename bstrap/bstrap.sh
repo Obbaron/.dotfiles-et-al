@@ -182,3 +182,27 @@ if [ "${#DOTFILES_SRC[@]}" -gt 0 ]; then
     done
     source "$SCRIPT_DIR/lib/05_dotfiles.sh" "${GIT_REPO}" "${DOTFILE_ARGS[@]}"
 fi
+
+
+_lock() {
+    local LOCK_FILE="$SCRIPT_DIR/bstrap.lock"
+
+    info "Writing lock file: $LOCK_FILE"
+
+    mkdir -p "$SCRIPT_DIR"
+
+    {
+        echo "# bstrap lock file"
+        echo "VERSION=\"1.0.0\""
+        echo "PROFILE=\"$PROFILE\""
+        echo "TIMESTAMP=\"$(date -Iseconds)\""
+
+        echo "PACKAGES=\"$(join_array "${PACKAGES[@]:-}")\""
+        echo "DIRECTORIES=\"$(join_array "${DIRECTORIES[@]:-}")\""
+        echo "SERVICES=\"$(join_array "${SERVICES[@]:-}")\""
+        echo "FILES=\"$(join_array "${DOTFILES_DST[@]:-}")\""
+        echo "PERMISSIONS_PATH=\"$(join_array "${PERMISSIONS_PATH[@]:-}")\""
+        echo "PERMISSIONS_MODE=\"$(join_array "${PERMISSIONS_MODE[@]:-}")\""
+
+    } > "$LOCK_FILE"
+}
