@@ -180,7 +180,7 @@ if [ "${#DOTFILES_SRC[@]}" -gt 0 ]; then
     for i in "${!DOTFILES_SRC[@]}"; do
         DOTFILE_ARGS+=("${DOTFILES_SRC[$i]}:${DOTFILES_DST[$i]}")
     done
-    source "$SCRIPT_DIR/lib/05_dotfiles.sh" "${GIT_REPO}" "${DOTFILE_ARGS[@]}"
+    source "$SCRIPT_DIR/lib/06_dotfiles.sh" "${GIT_REPO}" "${DOTFILE_ARGS[@]}"
 fi
 
 
