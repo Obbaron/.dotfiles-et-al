@@ -1,11 +1,18 @@
 #!/bin/bash
 # lib/05_dotfiles.sh
+#
+# Usage: 05_dotfiles.sh [-c|--copy] <src:dst ...>
+#   src:dst   - colon separated source and destination pairs
+#   -c|--copy - copy files instead of symlinking
 
 if [ -z "${SCRIPT_DIR:-}" ]; then
     SCRIPT_DIR="$(dirname "$0")/.."
 fi
 
 source "${SCRIPT_DIR}/lib/helpers.sh"
+
+GIT_REPO="${GIT_REPO:-}"
+ROOT_DIR="${ROOT_DIR:-}"
 
 USE_COPY=false
 
@@ -20,23 +27,7 @@ if [ -z "${1:-}" ]; then
     fail "No dotfiles provided"
 fi
 
-DOTFILE_PAIRS=()
-GIT_REPO=""
-ROOT_DIR=""
-
-for arg in "$@"; do
-    if [[ "$arg" =~ ^https?:// ]]; then
-        GIT_REPO="$arg"
-    elif [[ "$arg" =~ : ]]; then
-        DOTFILE_PAIRS+=("$arg")
-    else
-        ROOT_DIR="$arg"
-    fi
-done
-
-if [ -z "${DOTFILE_PAIRS[*]}" ]; then
-    fail "No dotfile pairs provided"
-fi
+DOTFILE_PAIRS=("$@")
 
 if [ -n "$GIT_REPO" ] && [ -n "$ROOT_DIR" ]; then
     info "Cloning dotfiles from $GIT_REPO..."
