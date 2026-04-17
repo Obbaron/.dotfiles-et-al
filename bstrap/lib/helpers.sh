@@ -105,7 +105,8 @@ build_lib() {
         "02_directories.sh"
         "03_permissions.sh"
         "04_services.sh"
-        "05_dotfiles.sh"
+        "05_repos.sh"
+        "06_dotfiles.sh"
     )
 
     for script in "${scripts[@]}"; do
