@@ -1,7 +1,7 @@
 #!/bin/bash
-# lib/05_dotfiles.sh
+# lib/06_dotfiles.sh
 #
-# Usage: 05_dotfiles.sh [-c|--copy] <src:dst ...> [GIT_REPO] [ROOT_DIR]
+# Usage: 06_dotfiles.sh [-c|--copy] <src:dst ...> [GIT_REPO] [ROOT_DIR]
 #   src:dst   - colon separated source and destination pairs
 #   GIT_REPO  - optional git repo URL to clone from
 #   ROOT_DIR  - optional local path to clone repo into
