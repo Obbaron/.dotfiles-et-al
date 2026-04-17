@@ -1,5 +1,5 @@
 #!/bin/bash
-# lib/06_dotfiles.sh
+# lib/05_dotfiles.sh
 
 if [ -z "${SCRIPT_DIR:-}" ]; then
     SCRIPT_DIR="$(dirname "$0")/.."
