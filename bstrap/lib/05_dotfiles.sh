@@ -33,9 +33,20 @@ fi
 
 DOTFILE_PAIRS=("$@")
 
-if [ -n "$GIT_REPO" ] && [ -n "$DOTFILES_ROOT" ]; then
-    info "Cloning dotfiles from $GIT_REPO..."
+if [ -n "$GIT_REPO" ]; then
 
+    if [ "$USE_COPY" = true ]; then
+        CLONE_DIR="$(mktemp -d /tmp/dotfiles.XXXXXX)"
+        trap 'rm -rf "$CLONE_DIR"' EXIT
+    else
+        if [ -z "$DOTFILES_ROOT" ]; then
+            fail "DOTFILES_ROOT must be set when symlinking from a git repo"
+        fi
+        CLONE_DIR="$DOTFILES_ROOT"
+    fi
+
+    info "Cloning dotfiles from $GIT_REPO..."
+    
     SPARSE_DIRS=()
     for pair in "${DOTFILE_PAIRS[@]}"; do
         src="${pair%%:*}"
@@ -46,18 +57,23 @@ if [ -n "$GIT_REPO" ] && [ -n "$DOTFILES_ROOT" ]; then
         fi
     done
 
-    mkdir -p "$DOTFILES_ROOT"
-    git clone --no-checkout --depth=1 "$GIT_REPO" "$DOTFILES_ROOT" || fail "Failed to clone $GIT_REPO"
-    git -C "$DOTFILES_ROOT" sparse-checkout init --cone
-    git -C "$DOTFILES_ROOT" sparse-checkout set "${SPARSE_DIRS[@]}"
-    git -C "$DOTFILES_ROOT" checkout || fail "Failed to checkout sparse dirs"
-    ok "Cloned dotfiles to $DOTFILES_ROOT"
+    mkdir -p "$CLONE_DIR"
+    git clone --no-checkout --depth=1 "$GIT_REPO" "$CLONE_DIR" || fail "Failed to clone $GIT_REPO"
+    git -C "$CLONE_DIR" sparse-checkout init --cone
+    git -C "$CLONE_DIR" sparse-checkout set "${SPARSE_DIRS[@]}"
+    git -C "$CLONE_DIR" checkout || fail "Failed to checkout sparse dirs"
+    ok "Cloned dotfiles to $CLONE_DIR"
 fi
 
 info "Deploying dotfiles..."
 for pair in "${DOTFILE_PAIRS[@]}"; do
     src="${pair%%:*}"
     dst="${pair##*:}"
+
+    if [ "$USE_COPY" = true ] && [ -n "$GIT_REPO" ]; then
+        relative="${src#$DOTFILES_ROOT/}"
+        src="$CLONE_DIR/$relative"
+    fi
 
     if [ ! -f "$src" ]; then
         fail "Source file does not exist: $src"
