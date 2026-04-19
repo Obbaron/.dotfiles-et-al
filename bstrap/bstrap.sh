@@ -194,6 +194,7 @@ for category, dirs in config.get("directories", {}).items():
 permissions_raw = [p for p in config.get("permissions", []) if profile in p.get("profiles", [])]
 services = [s["name"] for s in config.get("services", []) if profile in s.get("profiles", [])]
 dotfiles_raw = [d for d in config.get("dotfiles", []) if profile in d.get("profiles", [])]
+fonts = [f["name"] for f in config.get("fonts", []) if profile in f.get("profiles", [])]
 
 def arr(items):
     return "(" + " ".join(f'"{i}"' for i in items) + ")"
@@ -205,6 +206,7 @@ print(f"PERMISSIONS_MODE={arr(p['mode'] for p in permissions_raw)}")
 print(f"SERVICES={arr(services)}")
 print(f"DOTFILES_SRC={arr(expand(d['src']) for d in dotfiles_raw)}")
 print(f"DOTFILES_DST={arr(expand(d['dst']) for d in dotfiles_raw)}")
+print(f"FONTS={arr(fonts)}")
 EOF
 ) || fail "Failed to parse bstrap.yaml"
 
@@ -245,6 +247,11 @@ if [ "${#DOTFILES_SRC[@]}" -gt 0 ]; then
     source "$SCRIPT_DIR/lib/05_dotfiles.sh" "${DOTFILE_ARGS[@]}"
 fi
 
+# 06 fonts
+if [ "${#FONTS[@]}" -gt 0 ]; then
+    source "$SCRIPT_DIR/lib/06_fonts.sh" "${FONTS[@]}"
+fi
+
 
 write_lock() {
     local LOCK_FILE="$SCRIPT_DIR/bstrap.lock"
@@ -267,6 +274,7 @@ write_lock() {
         echo "PACKAGES=\"$(join_array "${PACKAGES[@]:-}")\""
         echo "DIRECTORIES=\"$(join_array "${DIRECTORIES[@]:-}")\""
         echo "SERVICES=\"$(join_array "${SERVICES[@]:-}")\""
+        echo "FONTS=\"$(join_array "${FONTS[@]:-}")\""
         echo "FILES=\"$(join_array "${DOTFILES_DST[@]:-}")\""
         echo "PERMISSIONS_PATH=\"$(join_array "${PERMISSIONS_PATH[@]:-}")\""
         echo "PERMISSIONS_MODE=\"$(join_array "${PERMISSIONS_MODE[@]:-}")\""
@@ -274,4 +282,4 @@ write_lock() {
 }
 
 write_lock
-ok "Bootstrap complete. Run 'exec bash -l' to affect changes to bash shell."
+ok "Bootstrap complete"
