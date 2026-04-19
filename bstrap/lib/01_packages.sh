@@ -1,7 +1,7 @@
 #!/bin/bash
 # lib/01_packages.sh
 
-PKG_MANAGER="${PKG_MANAGER,,}" # lowercase
+PKG_MANAGER="${PKG_MANAGER:-}"
 
 if [ -z "${SCRIPT_DIR:-}" ]; then
     SCRIPT_DIR="$(dirname "$0")/.."
@@ -17,4 +17,9 @@ PACKAGES=("$@")
 
 info "Installing packages: ${PACKAGES[*]}..."
 install_pkg "${PACKAGES[@]}"
-ok "All packages installed"
+case $? in
+    0) ok "All packages installed" ;;
+    1) fail "Failed to detect Linux distribution" ;;
+    2) fail "Unsupported Linux distribution" ;;
+    3) fail "Package manager command failed" ;;
+esac
