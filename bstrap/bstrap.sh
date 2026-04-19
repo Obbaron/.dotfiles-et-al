@@ -106,27 +106,49 @@ fi
 if ! python3 -c "import yaml" &>/dev/null; then
     if ! command_exists python3; then
         info "python3 not found, installing..."
-        install_pkg python3
+        case "$(detect_distro)" in
+            arch|manjaro|endeavouros|cachyos)
+                sudo pacman -S --noconfirm python
+                ;;
+            fedora|fedora-asahi-remix|rhel|centos)
+                sudo dnf install -y python3
+                ;;
+            ubuntu|debian|linuxmint)
+                sudo apt install -y python3
+                ;;
+            opensuse-leap|opensuse-tumbleweed)
+                sudo zypper install -y python3
+                ;;
+            gentoo)
+                sudo emerge dev-lang/python
+                ;;
+            void)
+                sudo xbps-install -y python3
+                ;;
+            *)
+                fail "Unable to install python3 on $(detect_distro)"
+                ;;
+        esac || fail "Failed to install python3"
     fi
     info "python3-yaml not found, installing..."
     case "$(detect_distro)" in
         arch|manjaro|endeavouros|cachyos)
-            install_pkg python-yaml
+            sudo pacman -S --noconfirm python-yaml || fail "Failed to install python-yaml"
             ;;
         fedora|fedora-asahi-remix|rhel|centos)
-            install_pkg python3-pyyaml
+            sudo dnf install -y python3-pyyaml || fail "Failed to install python3-pyyaml"
             ;;
         ubuntu|debian|linuxmint)
-            install_pkg python3-yaml
+            sudo apt install -y python3-yaml || fail "Failed to install python3-yaml"
             ;;
         opensuse-leap|opensuse-tumbleweed)
-            install_pkg python3-PyYAML
+            sudo zypper install -y python3-PyYAML || fail "Failed to install python3-PyYAML"
             ;;
         gentoo)
-            install_pkg dev-python/pyyaml
+            sudo emerge dev-python/pyyaml || fail "Failed to install dev-python/pyyaml"
             ;;
         void)
-            install_pkg python3-PyYAML
+            sudo xbps-install -y python3-PyYAML || fail "Failed to install python3-PyYAML"
             ;;
         *)
             fail "Unable to install PyYAML on $(detect_distro)"
