@@ -101,10 +101,6 @@ permissions:
     mode: "600"
     profiles: [desktop, server, minimal]
 
-services:
-  - name: ufw
-    profiles: [desktop, server]
-
 dotfiles:
   - src: ~/.dotfiles-et-al/bash/.bashrc
     dst: ~/.bashrc
