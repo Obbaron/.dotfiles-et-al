@@ -10,10 +10,11 @@ YAML="$SCRIPT_DIR/bstrap.yaml"
 
 GIT_REPO="https://github.com/Obbaron/.dotfiles-et-al.git"
 BRANCH="main"
-SUB_DIR="bstrap"
 DOTFILES_ROOT="$HOME/.dotfiles-et-al"
+
+BSTRAP_DIR="bstrap"
 RAW_URL="${GIT_REPO/github.com/raw.githubusercontent.com}"
-RAW_URL="${RAW_URL%.git}/$BRANCH${SUB_DIR:+/$SUB_DIR}"
+RAW_URL="${RAW_URL%.git}/$BRANCH${BSTRAP_DIR:+/$BSTRAP_DIR}"
 
 
 ## PARSE ARG
