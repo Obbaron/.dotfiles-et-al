@@ -61,7 +61,7 @@ directories:
     - path: ~/.local/state
       profiles: [desktop, server]
     - path: ~/.cache
-      profiles: [desktop server, minimal]
+      profiles: [desktop, server, minimal]
 
   xdg_user:
     - path: ~/Desktop
