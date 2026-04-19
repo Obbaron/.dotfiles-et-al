@@ -119,6 +119,7 @@ build_lib() {
             else
                 return 1
             fi
+            chmod +x "$dest/$script"
         fi
     done
 }
