@@ -16,6 +16,8 @@ BSTRAP_DIR="bstrap"
 RAW_URL="${GIT_REPO/github.com/raw.githubusercontent.com}"
 RAW_URL="${RAW_URL%.git}/$BRANCH${BSTRAP_DIR:+/$BSTRAP_DIR}"
 
+PKG_MANAGER="" # set by yaml parser, empty = auto-detect
+
 
 ## PARSE ARG
 if [ -n "${1:-}" ]; then
