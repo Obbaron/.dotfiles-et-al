@@ -4,6 +4,10 @@
 # Usage: 05_dotfiles.sh [-c|--copy] <src:dst ...>
 #   src:dst   - colon separated source and destination pairs
 #   -c|--copy - copy files instead of symlinking
+#
+# Optional environment variables:
+#   GIT_REPO      - git repo URL to sparse clone from
+#   DOTFILES_ROOT - local path to clone repo into
 
 if [ -z "${SCRIPT_DIR:-}" ]; then
     SCRIPT_DIR="$(dirname "$0")/.."
@@ -12,7 +16,7 @@ fi
 source "${SCRIPT_DIR}/lib/helpers.sh"
 
 GIT_REPO="${GIT_REPO:-}"
-ROOT_DIR="${ROOT_DIR:-}"
+DOTFILES_ROOT="${DOTFILES_ROOT:-}"
 
 USE_COPY=false
 
@@ -29,32 +33,34 @@ fi
 
 DOTFILE_PAIRS=("$@")
 
-if [ -n "$GIT_REPO" ] && [ -n "$ROOT_DIR" ]; then
+# Git sparse clone if GIT_REPO and DOTFILES_ROOT are set
+if [ -n "$GIT_REPO" ] && [ -n "$DOTFILES_ROOT" ]; then
     info "Cloning dotfiles from $GIT_REPO..."
 
+    # Extract unique top-level dirs from src paths
     SPARSE_DIRS=()
     for pair in "${DOTFILE_PAIRS[@]}"; do
         src="${pair%%:*}"
-        top_dir="${src%%/*}"
+        relative="${src#$DOTFILES_ROOT/}"
+        top_dir="${relative%%/*}"
         if [[ ! " ${SPARSE_DIRS[*]} " =~ " $top_dir " ]]; then
             SPARSE_DIRS+=("$top_dir")
         fi
     done
 
-    mkdir -p "$ROOT_DIR"
-    git clone --no-checkout --depth=1 "$GIT_REPO" "$ROOT_DIR" || fail "Failed to clone $GIT_REPO"
-    git -C "$ROOT_DIR" sparse-checkout init --cone
-    git -C "$ROOT_DIR" sparse-checkout set "${SPARSE_DIRS[@]}"
-    git -C "$ROOT_DIR" checkout || fail "Failed to checkout sparse dirs"
-    ok "Cloned dotfiles to $ROOT_DIR"
+    mkdir -p "$DOTFILES_ROOT"
+    git clone --no-checkout --depth=1 "$GIT_REPO" "$DOTFILES_ROOT" || fail "Failed to clone $GIT_REPO"
+    git -C "$DOTFILES_ROOT" sparse-checkout init --cone
+    git -C "$DOTFILES_ROOT" sparse-checkout set "${SPARSE_DIRS[@]}"
+    git -C "$DOTFILES_ROOT" checkout || fail "Failed to checkout sparse dirs"
+    ok "Cloned dotfiles to $DOTFILES_ROOT"
 fi
 
+# Deploy dotfiles
 info "Deploying dotfiles..."
 for pair in "${DOTFILE_PAIRS[@]}"; do
     src="${pair%%:*}"
     dst="${pair##*:}"
-
-    [ -n "$ROOT_DIR" ] && src="$ROOT_DIR/$src"
 
     if [ ! -f "$src" ]; then
         fail "Source file does not exist: $src"
