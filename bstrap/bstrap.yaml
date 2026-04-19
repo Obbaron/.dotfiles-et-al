@@ -1,3 +1,5 @@
+package_manager: default
+
 packages:
   terminal:
     - name: fastfetch
