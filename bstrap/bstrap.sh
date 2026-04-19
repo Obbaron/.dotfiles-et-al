@@ -100,6 +100,37 @@ if [ ! -f "$YAML" ]; then
     }
 fi
 
+if ! python3 -c "import yaml" &>/dev/null; then
+    if ! command_exists python3; then
+        info "python3 not found, installing..."
+        install_pkg python3
+    fi
+    info "python3-yaml not found, installing..."
+    case "$(detect_distro)" in
+        arch|manjaro|endeavouros|cachyos)
+            install_pkg python-yaml
+            ;;
+        fedora|fedora-asahi-remix|rhel|centos)
+            install_pkg python3-pyyaml
+            ;;
+        ubuntu|debian|linuxmint)
+            install_pkg python3-yaml
+            ;;
+        opensuse-leap|opensuse-tumbleweed)
+            install_pkg python3-PyYAML
+            ;;
+        gentoo)
+            install_pkg dev-python/pyyaml
+            ;;
+        void)
+            install_pkg python3-PyYAML
+            ;;
+        *)
+            fail "Unable to install PyYAML on $(detect_distro)"
+            ;;
+    esac
+fi
+
 
 ## PARSE YAML
 PARSED=$(YAML="$YAML" PROFILE="$PROFILE" DISTRO="$(detect_distro)" python3 - <<'EOF'
@@ -205,7 +236,6 @@ write_lock() {
         echo "SHELL=\"$SHELL\""
         echo "GIT_REPO=\"$GIT_REPO\""
         echo "BRANCH=\"$BRANCH\""
-        echo "SUB_DIR=\"$SUB_DIR\""
         echo "PROFILE=\"$PROFILE\""
         echo "DOTFILES_ROOT=\"${DOTFILES_ROOT:-}\""
         echo "PKG_MANAGER=\"${PKG_MANAGER:-}\""
