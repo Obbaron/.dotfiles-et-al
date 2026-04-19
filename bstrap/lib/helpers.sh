@@ -106,6 +106,7 @@ build_lib() {
         "03_permissions.sh"
         "04_services.sh"
         "05_dotfiles.sh"
+        "uninstall.sh"
     )
 
     for script in "${scripts[@]}"; do
