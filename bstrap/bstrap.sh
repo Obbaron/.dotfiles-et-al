@@ -116,6 +116,12 @@ def expand(path):
 with open(yaml_path) as f:
     config = yaml.safe_load(f)
 
+pkg_manager = config.get("package_manager", "default")
+if pkg_manager and pkg_manager != "default":
+    print(f'PKG_MANAGER="{pkg_manager}"')
+else:
+    print('PKG_MANAGER=""')
+
 packages = []
 for category, pkgs in config.get("packages", {}).items():
     for pkg in pkgs:
