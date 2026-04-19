@@ -10,7 +10,8 @@ YAML="$SCRIPT_DIR/bstrap.yaml"
 
 GIT_REPO="https://github.com/Obbaron/.dotfiles-et-al.git"
 BRANCH="main"
-SUB_DIR="bstrap" # empty string for no subdir
+SUB_DIR="bstrap"
+DOTFILES_ROOT="$HOME/.dotfiles-et-al"
 RAW_URL="${GIT_REPO/github.com/raw.githubusercontent.com}"
 RAW_URL="${RAW_URL%.git}/$BRANCH${SUB_DIR:+/$SUB_DIR}"
 
@@ -180,7 +181,7 @@ if [ "${#DOTFILES_SRC[@]}" -gt 0 ]; then
     for i in "${!DOTFILES_SRC[@]}"; do
         DOTFILE_ARGS+=("${DOTFILES_SRC[$i]}:${DOTFILES_DST[$i]}")
     done
-    source "$SCRIPT_DIR/lib/06_dotfiles.sh" "${GIT_REPO}" "${DOTFILE_ARGS[@]}"
+    source "$SCRIPT_DIR/lib/05_dotfiles.sh" "${DOTFILE_ARGS[@]}"
 fi
 
 
@@ -197,11 +198,10 @@ write_lock() {
         echo "KERNEL=\"$(uname -r)\""
         echo "ARCH=\"$(uname -m)\""
         echo "SHELL=\"$SHELL\""
-        echo "BSTRAP_REPO=\"$BSTRAP_REPO\""
+        echo "GIT_REPO=\"$GIT_REPO\""
         echo "BRANCH=\"$BRANCH\""
         echo "SUB_DIR=\"$SUB_DIR\""
         echo "PROFILE=\"$PROFILE\""
-        echo "GIT_REPO=\"${GIT_REPO:-}\""
         echo "DOTFILES_ROOT=\"${DOTFILES_ROOT:-}\""
         echo "PKG_MANAGER=\"${PKG_MANAGER:-}\""
         echo "PACKAGES=\"$(join_array "${PACKAGES[@]:-}")\""
@@ -212,3 +212,6 @@ write_lock() {
         echo "PERMISSIONS_MODE=\"$(join_array "${PERMISSIONS_MODE[@]:-}")\""
     } > "$LOCK_FILE"
 }
+
+write_lock
+ok "Bootstrap complete"
