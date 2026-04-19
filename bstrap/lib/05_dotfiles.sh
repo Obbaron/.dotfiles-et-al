@@ -33,11 +33,9 @@ fi
 
 DOTFILE_PAIRS=("$@")
 
-# Git sparse clone if GIT_REPO and DOTFILES_ROOT are set
 if [ -n "$GIT_REPO" ] && [ -n "$DOTFILES_ROOT" ]; then
     info "Cloning dotfiles from $GIT_REPO..."
 
-    # Extract unique top-level dirs from src paths
     SPARSE_DIRS=()
     for pair in "${DOTFILE_PAIRS[@]}"; do
         src="${pair%%:*}"
@@ -56,7 +54,6 @@ if [ -n "$GIT_REPO" ] && [ -n "$DOTFILES_ROOT" ]; then
     ok "Cloned dotfiles to $DOTFILES_ROOT"
 fi
 
-# Deploy dotfiles
 info "Deploying dotfiles..."
 for pair in "${DOTFILE_PAIRS[@]}"; do
     src="${pair%%:*}"
