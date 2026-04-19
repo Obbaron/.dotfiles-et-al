@@ -15,7 +15,6 @@ DOTFILES_ROOT="$HOME/.dotfiles-et-al"
 RAW_URL="${GIT_REPO/github.com/raw.githubusercontent.com}"
 RAW_URL="${RAW_URL%.git}/$BRANCH${SUB_DIR:+/$SUB_DIR}"
 
-PKG_MANAGER="" # override automatic distro detection
 
 ## PARSE ARG
 if [ -n "${1:-}" ]; then
