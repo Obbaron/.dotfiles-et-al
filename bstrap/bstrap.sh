@@ -184,26 +184,31 @@ if [ "${#DOTFILES_SRC[@]}" -gt 0 ]; then
 fi
 
 
-_lock() {
+write_lock() {
     local LOCK_FILE="$SCRIPT_DIR/bstrap.lock"
-
     info "Writing lock file: $LOCK_FILE"
-
-    mkdir -p "$SCRIPT_DIR"
-
     {
         echo "# bstrap lock file"
         echo "VERSION=\"1.0.0\""
-        echo "PROFILE=\"$PROFILE\""
-        echo "PKG_MANAGER=\"${PKG_MANAGER:-}\""
         echo "TIMESTAMP=\"$(date -Iseconds)\""
-
+        echo "HOSTNAME=\"$(hostname)\""
+        echo "USER=\"$(whoami)\""
+        echo "DISTRO=\"$(detect_distro)\""
+        echo "KERNEL=\"$(uname -r)\""
+        echo "ARCH=\"$(uname -m)\""
+        echo "SHELL=\"$SHELL\""
+        echo "BSTRAP_REPO=\"$BSTRAP_REPO\""
+        echo "BRANCH=\"$BRANCH\""
+        echo "SUB_DIR=\"$SUB_DIR\""
+        echo "PROFILE=\"$PROFILE\""
+        echo "GIT_REPO=\"${GIT_REPO:-}\""
+        echo "DOTFILES_ROOT=\"${DOTFILES_ROOT:-}\""
+        echo "PKG_MANAGER=\"${PKG_MANAGER:-}\""
         echo "PACKAGES=\"$(join_array "${PACKAGES[@]:-}")\""
         echo "DIRECTORIES=\"$(join_array "${DIRECTORIES[@]:-}")\""
         echo "SERVICES=\"$(join_array "${SERVICES[@]:-}")\""
         echo "FILES=\"$(join_array "${DOTFILES_DST[@]:-}")\""
         echo "PERMISSIONS_PATH=\"$(join_array "${PERMISSIONS_PATH[@]:-}")\""
         echo "PERMISSIONS_MODE=\"$(join_array "${PERMISSIONS_MODE[@]:-}")\""
-
     } > "$LOCK_FILE"
 }
