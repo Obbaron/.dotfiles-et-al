@@ -274,4 +274,4 @@ write_lock() {
 }
 
 write_lock
-ok "Bootstrap complete"
+ok "Bootstrap complete. Run 'exec bash -l' to affect changes to bash shell."
