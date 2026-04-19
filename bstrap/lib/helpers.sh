@@ -35,7 +35,7 @@ detect_distro() {
 }
 
 join_array() {
-    local IFS=" "
+    local IFS=","
     echo "$*"
 }
 
