@@ -2,6 +2,8 @@ package_manager: default
 
 packages:
   terminal:
+    - name: yazi
+      profiles: [desktop, server, minimal]
     - name: fastfetch
       profiles: [desktop, server]
     - name: btop
