@@ -119,3 +119,7 @@ dotfiles:
   - src: ~/.dotfiles-et-al/vim/.vimrc
     dst: ~/.vimrc
     profiles: [desktop, server, minimal]
+    
+fonts:
+  - name: JetBrainsMono
+    profiles: [desktop, server, minimal]
