@@ -3,19 +3,6 @@
 
 [[ $- != *i* ]] && return
 
-PROTECTED_ROOTS=(/ /home /usr /etc /bin /sbin /lib /lib64 /boot /var)
-
-is_protected_root() {
-  local target="${1}"
-
-  for root in "${PROTECTED_ROOTS[@]}"; do
-    if [ "${target}" = "${root}" ]; then
-      return 0
-    fi
-  done
-
-  return 1
-}
 
 # File ops
 backup () {
@@ -37,82 +24,71 @@ extract () {
   esac
 }
 
-gut () {
-  force=false
-  dry_run=false
+gut() {
+    local dir=""
+    local force=0
 
-  while [ $# -gt 0 ]; do
-    case "$1" in
-      -f|--force)
-        force=true
-        shift
-        ;;
-      -n|--dry-run)
-        dry_run=true
-        shift
-        ;;
-      --)
-        shift
-        break
-        ;;
-      -*)
-        echo "Unknown option: $1" >&2
+    for arg in "$@"; do
+        case "$arg" in
+            -f|--force)
+                force=1
+                ;;
+            *)
+                dir="$arg"
+                ;;
+        esac
+    done
+
+    if [ -z "$dir" ]; then
+        echo "Usage: gut [-f|--force] /path/to/directory"
         return 1
-        ;;
-      *)
-        break
-        ;;
-    esac
-  done
+    fi
 
-  local dir="${1:-}"
+    if [ "$dir" = "/" ]; then
+        echo "Cannot gut root."
+        return 1
+    fi
 
-  if [ -z "${dir}" ]; then
-    echo "Error: missing directory" >&2
-    echo "Usage: gut [-f|--force] [-n|--dry-run] <directory>" >&2
-    return 1
-  fi
+    if [ "$force" -eq 1 ]; then
+        find "$dir" -mindepth 1 -delete
+        echo "Directory gutted (forced): $dir"
+    else
+        echo "About to delete ALL contents of: $dir"
+        read -p "Are you sure? (y/N): " confirm
 
-  if [ ! -d "${dir}" ]; then
-    echo "Error: '${dir}' is not a directory" >&2
-    return 1
-  fi
+        # Param expansion (bash-only)
+        confirm=${confirm,,}
 
-  dir="$(cd "${dir}" 2>/dev/null && pwd)" || return 1
+        # Subshell version (posix)
+        # confirm=$(echo "$confirm" | tr '[:upper:]' '[:lower:]')
 
-  if [ -z "${dir}" ]; then
-    echo "Error: could not resolve directory" >&2
-    return 1
-  fi
-
-  if is_protected_root "${dir}"; then
-    echo "Refusing to operate on protected root directory: ${dir}" >&2
-    return 1
-  fi
-
-  echo "Target directory:"
-  echo "  ${dir}"
-  echo
-
-  if [ "${dry_run}" = true ]; then
-    echo "[DRY RUN] Would delete:"
-    find "${dir}" -mindepth 1
-    return 0
-  fi
-
-  if [ "${force}" != true ]; then
-    printf "Are you sure? (y/N): "
-    IFS= read -r confirm
-
-    case "${confirm}" in
-      y|Y) ;;
-      *) echo "Aborted." >&2; return 1 ;;
-    esac
-  fi
-
-  find "${dir}" -mindepth 1 -delete
-  echo "Done."
+        if [ "$confirm" = "y" ] || [ "$confirm" = "yes" ]; then
+            find "$dir" -mindepth 1 -delete
+            echo "Directory gutted."
+        else
+            echo "Cancelled."
+        fi
+    fi
 }
+
+pack () {
+  [ -z "${1}" ] && { echo "Error: no output file specified" >&2; return 1; }
+  [ "${#}" -lt 2 ] && { echo "Error: no input files specified" >&2; return 1; }
+
+  local output="${1}"
+  shift
+
+  case "${output}" in
+    *.tar)     tar -cvf  "${output}" "$@" ;;
+    *.tar.gz)  tar -cvzf "${output}" "$@" ;;
+    *.tar.bz2) tar -cvjf "${output}" "$@" ;;
+    *.tar.xz)  tar -cvJf "${output}" "$@" ;;
+    *.zip)     zip -r    "${output}" "$@" ;;
+    *.rar)     rar a     "${output}" "$@" ;;
+    *) echo "Unknown format" >&2; return 1 ;;
+  esac
+}
+
 
 # Navigation
 mkcd() {
@@ -121,22 +97,16 @@ mkcd() {
 }
 
 f () {
-  command -v fzf >/dev/null 2>&1 || {
-    echo "Error: fzf not installed" >&2
-    return 1
-  }
-
   local dir
-
   dir="$(find . -type d | fzf)"
-  local status=$?
 
-  if [ $status -eq 130 ]; then
+  local output=$?
+  if [ $output -eq 130 ]; then
     echo "Cancelled" >&2
     return 130
-  elif [ $status -ne 0 ]; then
+  elif [ $output -ne 0 ]; then
     echo "Error: fzf failed" >&2
-    return $status
+    return $output
   fi
 
   [ -z "${dir}" ] && {
@@ -168,8 +138,11 @@ y() {
         rm -f -- "$tmp"
 }
 
+
 # Networking
 pubip() { curl -s https://icanhazip.com; }
+
+tsip() { tailscale ip -4; }
 
 isup() {
   [ -z "$1" ] && { echo "Usage: isup <host>" >&2; return 1; }
