@@ -3,6 +3,10 @@
 
 [[ $- != *i* ]] && return
 
+path() {
+    echo "$PATH" | tr ":" "\n" | nl
+}
+
 
 # File ops
 backup () {
@@ -14,12 +18,13 @@ backup () {
 
 extract () {
   [ -f "${1}" ] || { echo "Error: file not found" >&2; return 1; }
-
   case "${1}" in
-    *.tar.gz) tar -xzf "${1}" ;;
-    *.tar.bz2) tar -xjf "${1}" ;;
-    *.zip) unzip "${1}" ;;
-    *.rar) unrar x "${1}" ;;
+    *.tar)     tar -xvf  "${1}" ;;
+    *.tar.gz)  tar -xvzf "${1}" ;;
+    *.tar.bz2) tar -xvjf "${1}" ;;
+    *.tar.xz)  tar -xvJf "${1}" ;;
+    *.zip)     unzip     "${1}" ;;
+    *.rar)     unrar x   "${1}" ;;
     *) echo "Unknown format" >&2; return 1 ;;
   esac
 }
@@ -131,11 +136,117 @@ up() {
 }
 
 y() {
-        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-        command yazi "$@" --cwd-file="$tmp"
-        IFS= read -r -d '' cwd < "$tmp"
-        [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
-        rm -f -- "$tmp"
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  command yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd < "$tmp"
+  [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+  rm -f -- "$tmp"
+}
+
+
+# Software
+detect_pkg_manager() {
+    local pkg_manager="${PKG_MANAGER:-}"
+    local distro
+
+    if [ -z "$pkg_manager" ]; then
+        [ -f /etc/os-release ] || return 1
+        . /etc/os-release || return 1
+        [ -n "$ID" ] || return 1
+        distro="$ID"
+
+        case "$distro" in
+            arch|manjaro|endeavouros|cachyos)
+                if command -v paru &>/dev/null; then
+                    pkg_manager="paru"
+                elif command -v yay &>/dev/null; then
+                    pkg_manager="yay"
+                else
+                    pkg_manager="pacman"
+                fi
+                ;;
+            fedora|fedora-asahi-remix|rhel|centos) pkg_manager="dnf" ;;
+            ubuntu|debian|linuxmint) pkg_manager="apt" ;;
+            opensuse-leap|opensuse-tumbleweed) pkg_manager="zypper" ;;
+            gentoo) pkg_manager="emerge" ;;
+            void) pkg_manager="xbps-install" ;;
+            *) return 2 ;;
+        esac
+    fi
+
+    echo "$pkg_manager"
+}
+
+install_pkg() {
+#   0 = success
+#   1 = failed to detect Linux distribution (/etc/os-release missing or invalid)
+#   2 = unsupported Linux distribution
+#   3 = package manager command failed
+    local pkg_manager
+    pkg_manager="$(detect_pkg_manager)" || return $?
+
+    case "$pkg_manager" in
+        paru|yay)
+            "$pkg_manager" -S --noconfirm "$@"
+            ;;
+        pacman)
+            sudo pacman -S --noconfirm "$@"
+            ;;
+        dnf)
+            sudo dnf install -y "$@"
+            ;;
+        apt)
+            sudo apt install -y "$@"
+            ;;
+        zypper)
+            sudo zypper install -y "$@"
+            ;;
+        emerge)
+            sudo emerge "$@"
+            ;;
+        xbps-install)
+            sudo xbps-install -y "$@"
+            ;;
+        *)
+            return 2
+            ;;
+    esac || return 3
+}
+
+update_pkg() {
+#   0 = success
+#   1 = failed to detect Linux distribution (/etc/os-release missing or invalid)
+#   2 = unsupported Linux distribution
+#   3 = package manager command failed
+    local pkg_manager
+    pkg_manager="$(detect_pkg_manager)" || return $?
+
+    case "$pkg_manager" in
+        paru|yay)
+            "$pkg_manager" -Syu --noconfirm
+            ;;
+        pacman)
+            sudo pacman -Syu --noconfirm
+            ;;
+        dnf)
+            sudo dnf upgrade -y
+            ;;
+        apt)
+            sudo apt update && sudo apt upgrade -y
+            ;;
+        zypper)
+            sudo zypper refresh && sudo zypper update -y
+            ;;
+        emerge)
+            sudo emerge --sync && sudo emerge -uDU @world
+            ;;
+        xbps-install)
+            sudo xbps-install -Syu
+            ;;
+        *)
+            return 2
+            ;;
+    esac || return 3
 }
 
 
