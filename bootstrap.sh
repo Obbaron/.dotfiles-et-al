@@ -3,10 +3,13 @@
 #   1. ensures dependencies: git >= 2.25 and python >= 3.11
 #   2. obtains the repo at REF ($REPO_HOME, under XDG data):
 #      first run sparse-clones (root level only); a re-run fetches + checks out REF
-#   3. hands off to configure.py passing through the user's args
+#   3. hands off:
+#      - with a profile: exec configure.py, passing the user's args through
+#      - with no args:   exec edit.py (launch the TUI editor)
 #
 # Usage:
-#   ./bootstrap.sh <profile> [ARGS...]   ARGS pass through to configure.py
+#   ./bootstrap.sh                       launch the TUI editor (edit.py)
+#   ./bootstrap.sh <profile> [ARGS...]   apply <profile>; ARGS pass to configure.py
 
 # Config:
 #   REF        git tag (or ref) to clone/checkout
@@ -124,7 +127,6 @@ update_repo() {
     git -C "$REPO_HOME" fetch --tags origin || die "git fetch failed in $REPO_HOME"
     # A branch ref must follow the remote: checking out the local branch would
     # pin us to whatever it pointed at last time. Detach at origin/REF instead.
-    # Tags and raw SHAs have no origin/ counterpart and check out directly.
     if git -C "$REPO_HOME" rev-parse --verify --quiet "refs/remotes/origin/$REF" >/dev/null; then
         git -C "$REPO_HOME" -c advice.detachedHead=false checkout --detach "origin/$REF" \
             || die "git checkout origin/$REF failed (dirty tree? resolve and re-run)"
@@ -171,11 +173,21 @@ main() {
         clone_repo
     fi
 
+    # No profile: launch TUI
+    if [ "$#" -eq 0 ]; then
+        if [ -n "$DRY_RUN" ]; then
+            say "dry run: would exec ${py:-python3} $REPO_HOME/edit.py"
+            return 0
+        fi
+        say "no profile given; launching editor..."
+        exec "$py" "$REPO_HOME/edit.py"
+    fi
+
     if [ -n "$DRY_RUN" ]; then
         say "dry run: would exec ${py:-python3} $REPO_HOME/configure.py $*"
         return 0
     fi
-    say "exec configure.py"
+    say "exec configure.py..."
     exec "$py" "$REPO_HOME/configure.py" "$@"
 }
 
